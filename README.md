@@ -4,6 +4,8 @@ This script takes all configured Storage Domains of oVirt and balances their dis
 
 This project uses ovirt-engine-sdk-python version 4.x.
 
+**Note: This is an unofficial oVirt-related project**
+
 ### Installation
 
 ```
@@ -30,7 +32,7 @@ optional arguments:
 ```
 
 * If run without parameters, daemon mode will be invoked.
-* --one-run and --show-occupation are incompatible with --daemon mode, and they have precedence over this latter.
+* `--one-run` and `--show-occupation` are incompatible with `--daemon` mode, and they have precedence over this latter.
 
 ### Version
 
