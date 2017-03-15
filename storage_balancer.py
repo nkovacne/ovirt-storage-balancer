@@ -195,6 +195,9 @@ def filter_disks(vmdiskmap, disks):
             if disk.id in template_disk_ids:
                 log('Disk %s belongs to template, discarding' % (disk.id), True)
                 continue
+            if disk.name == 'OVF_STORE':
+                log('Disk %s is a OVF_STORE disk, discarding' % (disk.id), True)
+                continue
             else:
                 log('Disk %s with no associated VM, adding' % (disk.id), True)
                 filtered.append(disk)

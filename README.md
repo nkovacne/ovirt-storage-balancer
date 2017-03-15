@@ -36,4 +36,4 @@ optional arguments:
 
 ### Version
 
-This is version 1.0.
+This is version 1.1.

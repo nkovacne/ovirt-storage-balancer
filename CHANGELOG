@@ -1,3 +1,7 @@
+1.1
+===
+* Fix: Added a discard condition for OVF_STORE disks
+
 1.0
 ===
 
