@@ -9,10 +9,15 @@ from ovirtsdk4 import types, Error, Connection
 
 import signal
 import argparse
+from os.path import isfile
 from sys import path, exit
 from time import sleep, gmtime, strftime
 
 from funcs import SD, BYTES2GB, log, get_template_disk_ids, sort_disks_by_size, wait4unlock, get_vm_disk_map, find_vm_by_disk
+
+if not isfile('config.py'):
+    print "ERROR: File config.py does not exist. Please check documentation or copy file config.py.example as config.py and customize it."
+    exit(1)
 
 try:
     from config import URI
@@ -99,7 +104,13 @@ def get_sd_data():
     if DATACENTER:
         sd_search_query += ' and datacenter = %s' % (DATACENTER)
   
-    for sd in sd_serv.list(search=sd_search_query):
+    try:
+        sd_list = sd_serv.list(search=sd_search_query)
+    except Error, e:
+        log('ERR: Could not retrieve storage domain list. oVirt error: %s' % (e))
+        return None
+
+    for sd in sd_list:
        newsd = SD()
        newsd.name = sd.name
        newsd.free = sd.available
@@ -126,7 +137,7 @@ def filter_and_sort_sds(sds, current_sd):
             log('Discarding SD %s as it\'s overused (%d perc.)' % (sd.name, sd.percent_usage), True)
             continue
         else:
-            log('Including SD %s as suitable destination' % (sd.name), True)
+            log('Tagging SD %s as a suitable destination' % (sd.name), True)
             filtered.append(sd)
 
     filtered.sort(key=lambda x: x.free, reverse=True)
@@ -143,7 +154,12 @@ def make_migration_map(sd, disks_sorted):
 
     log(' ', True)
     log('Filtering and sorting SDs...', True)
-    sorted_sds = filter_and_sort_sds(get_sd_data(), sd)
+
+    sd_data = get_sd_data()
+    if sd_data is None:
+        return migration_map      # empty
+
+    sorted_sds = filter_and_sort_sds(sd_data, sd)
     for sds in sorted_sds:
         log("SORTED SD: %s: %dGB" % (sds.name, sds.free / BYTES2GB), True)
 
@@ -215,7 +231,7 @@ def filter_disks(vmdiskmap, disks):
                 log('Discarding disk %s as it belongs to a VM that is down (%s) and the policy is \'%s\'' % (disk.id, vm.name, POLICY), True)
                 continue
             else:
-                log('Disk %s seems migrable (VM: %s), adding' % (disk.id, vm.name), True)
+                log('Disk %s seems migratable (VM: %s), adding' % (disk.id, vm.name), True)
                 filtered.append(disk)
     return filtered
 
@@ -260,8 +276,12 @@ def rebalance_sd(sd):
 
                 log('Moving disk %s (VM: %s) -> %s (%dGB)' % (disk.id, vmname, migr_sd.name, disk.actual_size / BYTES2GB))
                 disks_serv = disks.disk_service(id=disk.id)
-                disks_serv.move(storage_domain=migr_sd.sd_p)
-                wait4unlock(sys_serv, disk.id)
+
+                try:
+                    disks_serv.move(storage_domain=migr_sd.sd_p)
+                    wait4unlock(sys_serv, disk.id)
+                except Error, e:
+                    log('WARN: Could not move disk, oVirt threw this error: %s' % (e))
         log('RESULT: Storage domain %s has been rebalanced.' % (sd.name))
     return True
 
@@ -273,18 +293,20 @@ def analyze_datastores():
     bal_needed = False
 
     log("Analyzing occupation of storage domains...", True)
-    for sd in get_sd_data():
-        log("%s -> %d perc." % (sd.name, sd.percent_usage), True)
-        if sd.percent_usage >= THRESHOLD:
-            bal_needed = True
+    sd_data = get_sd_data()
+    if not sd_data is None:
+        for sd in sd_data:
+            log("%s -> %d perc." % (sd.name, sd.percent_usage), True)
+            if sd.percent_usage >= THRESHOLD:
+                bal_needed = True
 
-            log('Storage domain %s is overused: (%d perc.), limit is %d perc.' % (sd.name, sd.percent_usage, THRESHOLD))
-            balance_result = rebalance_sd(sd)
-            if balance_result is None:
-                log('WARN: Rebalancing result: Rebalancing couldn\'t be perfomed.')
+                log('Storage domain %s is overused: (%d perc.), limit is %d perc.' % (sd.name, sd.percent_usage, THRESHOLD))
+                balance_result = rebalance_sd(sd)
+                if balance_result is None:
+                    log('WARN: Rebalancing result: Rebalancing couldn\'t be perfomed.')
 
-    if not bal_needed:
-        log('RESULT: No rebalancing needed, all storage domains are below occupation threshold.', True)
+        if not bal_needed:
+            log('RESULT: No rebalancing needed, all storage domains are below occupation threshold.', True)
     log('- - - - - - - - - - - - - - - - -', True)
 
 # Lists current storage domain occupation
@@ -292,10 +314,12 @@ def show_occupation():
     global THRESHOLD
 
     log("Analyzing occupation of storage domains...")
-    for sd in get_sd_data():
-        log("%s -> %d perc." % (sd.name, sd.percent_usage))
-        if sd.percent_usage >= THRESHOLD:
-            log('Storage domain %s is overused: (%d perc.), limit is %d perc.' % (sd.name, sd.percent_usage, THRESHOLD))
+    sd_data = get_sd_data()
+    if not sd_data is None:
+        for sd in sd_data:
+            log("%s -> %d perc." % (sd.name, sd.percent_usage))
+            if sd.percent_usage >= THRESHOLD:
+                log('Storage domain %s is overused: (%d perc.), limit is %d perc.' % (sd.name, sd.percent_usage, THRESHOLD))
 
 # Ctrl-C signal
 def signal_handler(signal, frame):

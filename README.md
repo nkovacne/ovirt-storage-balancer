@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ```
 
 ### Configuration
-Edit file `config.py` and adjust parameters to your needs. An explaination can be found inside the file comments.
+Copy the `config.py.example` file as `config.py` and adjust parameters to your needs. An explaination can be found inside the file comments.
 
 ### Script invocation
 
@@ -36,4 +36,4 @@ optional arguments:
 
 ### Version
 
-This is version 1.1.
+This is version 1.2.

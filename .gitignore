@@ -1,2 +1,5 @@
 *.pyc
+*.crt
+*.pem
+config.py
 venv/

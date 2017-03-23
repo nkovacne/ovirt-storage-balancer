@@ -1,3 +1,10 @@
+1.2
+===
+* Rename of the config.py file to config.py.example
+* Handling of some exceptions
+* Added a KNOWN_ISSUES file
+* Some minor fixes
+
 1.1
 ===
 * Fix: Added a discard condition for OVF_STORE disks

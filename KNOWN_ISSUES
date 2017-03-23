@@ -1,0 +1,10 @@
+* As of oVirt v4.1.0 a bug was introduced that makes the session token
+  expire and not renew even if using the Python-SDK. That makes the
+  oVirt storage balancer fail when run in daemon mode after cca. 30
+  minutes of execution, receiving a 401 HTTP code from oVirt, as the
+  project uses the same ovirtsdk4.Connection object all the time.
+
+  This bug has already been reported on oVirt's BZ and it can be tracked
+  in this URL: https://bugzilla.redhat.com/show_bug.cgi?id=1434830
+
+  Seems this will be fixed in 4.1.2.
