@@ -2,7 +2,7 @@
 # This parameter is mandatory.
 URI = 'https://your-ovirt/ovirt-engine/api'
 
-# Username of the user which will move the disks. Make sure this account have the
+# Username of the user which will move the disks. Make sure this account has the
 # proper permissions to do so.
 # This parameter is mandatory.
 USERNAME = 'admin@internal'
@@ -32,12 +32,12 @@ NOBALANCE = []
 # If set to True, a lot of information will be shown of the balancing process
 DEBUG = False
 
-# Time in seconds between different iterations of balancing
+# Time in seconds between different balancing iterations
 # Default: 300 seconds
 ITERATIONSLEEP = 300
 
 # Policy to use when balancing. 'du' per default.
-# 'd' = Only machines that are down at the time of balancing will be taken into account in the balancing process 
-# 'u' = Only machines that are up at the time of balancing will be taken into account in the balancing process 
-# 'du' = Machines that are either up or down at the time of balancing will be taken into account in the balancing process (default)
+# 'd' = Only down machines at balancing time will be taken into account in the balancing process
+# 'u' = Only up machines at balancing time will be taken into account in the balancing process
+# 'du' = Machines that are either up or down at balancing time will be taken into account in the balancing process (default)
 POLICY = 'du'
