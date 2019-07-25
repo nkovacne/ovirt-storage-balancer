@@ -1,3 +1,8 @@
+1.3
+===
+* Some minor fixes
+* KNOWN_ISSUES file no longer needed
+
 1.2
 ===
 * Rename of the config.py file to config.py.example

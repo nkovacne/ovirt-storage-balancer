@@ -11,6 +11,7 @@ This project uses ovirt-engine-sdk-python version 4.x.
 ```
 virtualenv venv
 . venv/bin/activate
+pip install --install-option="--with-nss" pycurl
 pip install -r requirements.txt
 ```
 
@@ -36,4 +37,4 @@ optional arguments:
 
 ### Version
 
-This is version 1.2.
+This is version 1.3.

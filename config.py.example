@@ -26,6 +26,7 @@ DATACENTER = ''
 
 # If set, these storage domains won't be balanced, neither as origin or destination.
 # Must be a Python list of storage domains' names.
+# It's recommended that you include at least you ISO and EXPORT domains here.
 # This parameter is optional.
 NOBALANCE = []
 
