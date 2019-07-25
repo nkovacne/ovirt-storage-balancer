@@ -16,37 +16,37 @@ from time import sleep, gmtime, strftime
 from funcs import SD, BYTES2GB, log, get_template_disk_ids, sort_disks_by_size, wait4unlock, get_vm_disk_map, find_vm_by_disk
 
 if not isfile('config.py'):
-    print "ERROR: File config.py does not exist. Please check documentation or copy file config.py.example as config.py and customize it."
+    print("ERROR: File config.py does not exist. Please check documentation or copy file config.py.example as config.py and customize it.")
     exit(1)
 
 try:
     from config import URI
 except ImportError:
-    print "ERROR: URI not specified in configuration. This parameter is mandatory"
+    print("ERROR: URI not specified in configuration. This parameter is mandatory")
     exit(1)
 
 try:
     from config import USERNAME
 except ImportError:
-    print "ERROR: USERNAME not specified in configuration. This parameter is mandatory"
+    print("ERROR: USERNAME not specified in configuration. This parameter is mandatory")
     exit(1)
 
 try:
     from config import PASSWORD
 except ImportError:
-    print "ERROR: PASSWORD not specified in configuration. This parameter is mandatory"
+    print("ERROR: PASSWORD not specified in configuration. This parameter is mandatory")
     exit(1)
 
 try:
     from config import CAPATH
 except ImportError:
-    print "ERROR: CAPATH not specified in configuration. This parameter is mandatory"
+    print("ERROR: CAPATH not specified in configuration. This parameter is mandatory")
     exit(1)
 
 try:
     from config import THRESHOLD
 except ImportError:
-    print "ERROR: THRESHOLD not specified in configuration. This parameter is mandatory"
+    print("ERROR: THRESHOLD not specified in configuration. This parameter is mandatory")
     exit(1)
 
 try:
@@ -84,7 +84,7 @@ conn = Connection(
 )
 
 if not conn.test(raise_exception=False):
-    print "ERROR: Incorrect credentials. Please check your USERNAME, PASSWORD and CAPATH parameters."
+    print("ERROR: Incorrect credentials. Please check your USERNAME, PASSWORD and CAPATH parameters.")
     exit(2)
 
 sys_serv = conn.system_service()
@@ -106,8 +106,8 @@ def get_sd_data():
   
     try:
         sd_list = sd_serv.list(search=sd_search_query)
-    except Error, e:
-        log('ERR: Could not retrieve storage domain list. oVirt error: %s' % (e))
+    except Error as e:
+        log('ERR: Could not retrieve storage domain list. oVirt error: %s' % (str(e)))
         return None
 
     for sd in sd_list:
@@ -280,8 +280,8 @@ def rebalance_sd(sd):
                 try:
                     disks_serv.move(storage_domain=migr_sd.sd_p)
                     wait4unlock(sys_serv, disk.id)
-                except Error, e:
-                    log('WARN: Could not move disk, oVirt threw this error: %s' % (e))
+                except Error as e:
+                    log('WARN: Could not move disk, oVirt threw this error: %s' % (str(e)))
         log('RESULT: Storage domain %s has been rebalanced.' % (sd.name))
     return True
 

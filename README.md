@@ -15,6 +15,10 @@ pip install --install-option="--with-nss" pycurl
 pip install -r requirements.txt
 ```
 
+**Note**: In case you want to use `python3` instead of `python2` (which is by the way recommended), you can specify the `-p python3` parameter to your `virtualenv` command instead:
+
+`virtualenv -p python3 venv`
+
 ### Configuration
 Copy the `config.py.example` file as `config.py` and adjust parameters to your needs. An explaination can be found inside the file comments.
 

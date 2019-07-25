@@ -36,9 +36,9 @@ def log(line, logdebug=False):
     global DEBUG
 
     if not logdebug:
-        print "[%s] %s" % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), line)
+        print("[%s] %s" % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), line))
     if logdebug and DEBUG:
-        print "[%s][DEBUG] %s" % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), line)
+        print("[%s][DEBUG] %s" % (strftime("%Y-%m-%d %H:%M:%S", gmtime()), line))
 
 # Returns a list of all template disk's IDs (will be marked as non-migratable)
 def get_template_disk_ids(sys_serv):
