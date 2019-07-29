@@ -24,6 +24,7 @@ class SD:
   used = 0
   percent_usage = 0
   sd_p = None
+  dc = None
 
 BYTES2GB = 1024**3
 

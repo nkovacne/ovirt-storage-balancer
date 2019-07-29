@@ -90,8 +90,8 @@ if not conn.test(raise_exception=False):
 sys_serv = conn.system_service()
 
 # Returns a list of SDs discarding those defined in NOBALANCE
-# and including those defined in DATACENTERS, if set.
-def get_sd_data():
+# and including those defined in DATACENTER, if set.
+def get_sd_data(dc=None):
     global NOBALANCE, DATACENTER, sys_serv
   
     sds = []
@@ -101,8 +101,8 @@ def get_sd_data():
     for nobal in NOBALANCE:
         sd_search_query += ' and name != %s' % (nobal)
     
-    if DATACENTER:
-        sd_search_query += ' and datacenter = %s' % (DATACENTER)
+    if dc:
+        sd_search_query += ' and datacenter = %s' % (dc)
   
     try:
         sd_list = sd_serv.list(search=sd_search_query)
@@ -117,6 +117,12 @@ def get_sd_data():
        newsd.used = sd.used
        newsd.percent_usage = int((newsd.used / float(newsd.used + newsd.free)) * 100)
        newsd.sd_p = sd
+
+       # DC search... (must be done like this, data_centers_service() won't allow searching by id)
+       for dc in sys_serv.data_centers_service().list():
+           if dc.id == sd.data_centers[0].id:
+               newsd.dc = dc.name
+               break
   
        sds.append(newsd)
   
@@ -155,7 +161,7 @@ def make_migration_map(sd, disks_sorted):
     log(' ', True)
     log('Filtering and sorting SDs...', True)
 
-    sd_data = get_sd_data()
+    sd_data = get_sd_data(dc=sd.dc)
     if sd_data is None:
         return migration_map      # empty
 
@@ -293,7 +299,8 @@ def analyze_datastores():
     bal_needed = False
 
     log("Analyzing occupation of storage domains...", True)
-    sd_data = get_sd_data()
+    dc = DATACENTER if DATACENTER else None
+    sd_data = get_sd_data(dc)
     if not sd_data is None:
         for sd in sd_data:
             log("%s -> %d perc." % (sd.name, sd.percent_usage), True)
@@ -314,7 +321,8 @@ def show_occupation():
     global THRESHOLD
 
     log("Analyzing occupation of storage domains...")
-    sd_data = get_sd_data()
+    dc = DATACENTER if DATACENTER else None
+    sd_data = get_sd_data(dc)
     if not sd_data is None:
         for sd in sd_data:
             log("%s -> %d perc." % (sd.name, sd.percent_usage))

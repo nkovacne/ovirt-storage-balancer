@@ -1,3 +1,7 @@
+1.5
+===
+* Fix issue #1
+
 1.4
 ===
 * Make it compatible with python3
