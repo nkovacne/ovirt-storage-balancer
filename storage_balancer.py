@@ -137,7 +137,7 @@ def filter_and_sort_sds(sds, current_sd):
 
     for sd in sds:
         if sd.name == current_sd.name:
-            log('Discarding SD %s as it\'s the same as the origin' % (sd.name), True)
+            log('Discarding SD %s as it\'s the origin SD' % (sd.name), True)
             continue
         if sd.percent_usage >= THRESHOLD:
             log('Discarding SD %s as it\'s overused (%d perc.)' % (sd.name, sd.percent_usage), True)
@@ -171,7 +171,7 @@ def make_migration_map(sd, disks_sorted):
 
     endloop = False
     log(' ', True)
-    log('Processing now all disks to rebalance SD %s' % (sd.name), True)
+    log('Processing all disks to rebalance SD %s' % (sd.name), True)
     for disk in disks_sorted:
         if endloop:
             break
@@ -188,7 +188,7 @@ def make_migration_map(sd, disks_sorted):
                 theoretic_occupation_destination += disk.actual_size
                 migration_map[dest_sd].append(disk)
 
-                log('Checking if after migrating disk the origin DS is below occupation threshold...', True)
+                log('Checking if after migrating disk the origin DS would be below occupation threshold...', True)
                 if int(((theoretic_occupation_origin) / (float) (sd.used + sd.free)) * 100) < THRESHOLD:
                     # At this point there's no need to keep on balancing more disks
                     # We just exit and the migration map is finished.
@@ -215,26 +215,26 @@ def filter_disks(vmdiskmap, disks):
         vm = find_vm_by_disk(sys_serv, vmdiskmap, disk)
         if vm is None:
             if disk.id in template_disk_ids:
-                log('Disk %s belongs to template, discarding' % (disk.id), True)
+                log('Disk %s belongs to a template, discarding' % (disk.id), True)
                 continue
             if disk.name == 'OVF_STORE':
-                log('Disk %s is a OVF_STORE disk, discarding' % (disk.id), True)
+                log('Disk %s is an OVF_STORE disk, discarding' % (disk.id), True)
                 continue
             else:
-                log('Disk %s with no associated VM, adding' % (disk.id), True)
+                log('Disk %s has no associated VM, adding' % (disk.id), True)
                 filtered.append(disk)
         else:
             if disk.status != types.DiskStatus.OK:
                 log('Disk %s has a different state from ok (%s), discarding' % (disk.id, disk.status.value), True)
                 continue
             if vm.status == types.VmStatus.UP and vm.stateless:
-                log('Discarding disk %s as it belongs to a VM that is stateless and up (%s)' % (disk.id, vm.name), True)
+                log('Discarding disk %s as it belongs to a stateless and powered-on VM (%s)' % (disk.id, vm.name), True)
                 continue
             if vm.status == types.VmStatus.UP and POLICY == 'd':
-                log('Discarding disk %s as it belongs to a VM that is up (%s) and the policy is \'%s\'' % (disk.id, vm.name, POLICY), True)
+                log('Discarding disk %s as it belongs to a powered-on VM (%s) and the policy is \'%s\'' % (disk.id, vm.name, POLICY), True)
                 continue
             if vm.status == types.VmStatus.DOWN and POLICY == 'u':
-                log('Discarding disk %s as it belongs to a VM that is down (%s) and the policy is \'%s\'' % (disk.id, vm.name, POLICY), True)
+                log('Discarding disk %s as it belongs to a powered-off VM (%s) and the policy is \'%s\'' % (disk.id, vm.name, POLICY), True)
                 continue
             else:
                 log('Disk %s seems migratable (VM: %s), adding' % (disk.id, vm.name), True)
@@ -256,7 +256,7 @@ def rebalance_sd(sd):
     log('Gathering disks from storage domain %s' % (sd.name), True)
     disks_unsorted = disks.list(search='Storage = %s' % (sd.name))
     if not disks_unsorted:
-        log('WARN: Couldn\'t get any migrable disk from storage domain %s, rebalancing cannot be performed.' % (sd.name))
+        log('WARN: Couldn\'t get any migratable disk from storage domain %s, rebalancing cannot be performed.' % (sd.name))
         return None
 
     log('Applying disk filter policies...', True)
